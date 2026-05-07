@@ -2,55 +2,59 @@ export async function POST(request) {
   try {
     const { prompt } = await request.json();
 
-    const resposta = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": process.env.GEMINI_API_KEY
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `
-Você é um gerador de HTML.
+    if (!process.env.OPENROUTER_API_KEY) {
+      return Response.json(
+        { erro: "OPENROUTER_API_KEY não encontrada." },
+        { status: 500 }
+      );
+    }
 
-Pedido do usuário: ${prompt}
+    const resposta = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "openrouter/free",
+        messages: [
+          {
+            role: "system",
+            content: `
+Você gera apenas HTML.
 
-Responda somente com o código HTML completo.
-Não escreva explicações.
-Não use markdown.
-Não use crases.
-Não use \`\`\`html.
-Comece exatamente com <!DOCTYPE html>.
-Use CSS dentro de <style>.
-Não use JavaScript.
-Máximo 100 linhas.
+Regras:
+- Responda somente com HTML completo.
+- Comece com <!DOCTYPE html>.
+- Use CSS dentro de <style>.
+- Não use markdown.
+- Não use crases.
+- Não explique nada.
+- Não use JavaScript.
+- Faça uma página básica e simples.
+- Máximo 100 linhas.
 `
-                }
-              ]
-            }
-          ],
-          generationConfig: {
-            maxOutputTokens: 900,
-            temperature: 0.3
+          },
+          {
+            role: "user",
+            content: prompt
           }
-        })
-      }
-    );
+        ],
+        max_tokens: 900,
+        temperature: 0.4
+      })
+    });
 
     const dados = await resposta.json();
 
     if (!resposta.ok) {
-      return Response.json({
-        erro: dados.error?.message || "Erro Gemini"
-      });
+      return Response.json(
+        { erro: dados.error?.message || "Erro na OpenRouter." },
+        { status: resposta.status }
+      );
     }
 
-    let resultado = dados.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    let resultado = dados.choices?.[0]?.message?.content || "";
 
     resultado = resultado
       .replace(/```html/g, "")
@@ -66,8 +70,9 @@ Máximo 100 linhas.
     return Response.json({ resultado });
 
   } catch (erro) {
-    return Response.json({
-      erro: erro.message
-    });
+    return Response.json(
+      { erro: erro.message },
+      { status: 500 }
+    );
   }
 }
