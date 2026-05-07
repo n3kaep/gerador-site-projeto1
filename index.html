@@ -1,26 +1,56 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <link rel="stylesheet" href="style.css">
-    <title>Dev Club TREINO</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="style.css">
+
+  <title>Dev Club TREINO</title>
 </head>
+
 <body>
-    <section id="devclub-text">
-        <p class="p1">Dev Club -- Gerador com Inteligencia Artificial</p>
-        <h1 class="p2">Crie sua pagina <br><span class="comIA">com IA</span></h1>
-        <p class="p3">Descreva sua idea e deixe <br><span>com</span> a IA criar um site para você em segundos</p>
-    </section>
-    <div class="input-area">
-        <textarea placeholder="Descreva sua idea"></textarea>
-        <button>Gerar</button>
-    </div>
-    <div class="caixa-resultado">
-        <p class="bloco-codigo">LOREMLOREMRLO</p>
-        <iframe class="bloco-site">RERERERERER</iframe>
-    </div>
-   
+
+  <section id="devclub-text">
+    <p class="p1">Dev Club -- Gerador com Inteligência Artificial</p>
+
+    <h1 class="p2">
+      Crie sua página <br>
+      <span class="comIA">com IA</span>
+    </h1>
+
+    <p class="p3">
+      Descreva sua ideia e deixe <br>
+      a IA criar um site para você em segundos
+    </p>
+  </section>
+
+  <div class="input-area">
+    <textarea 
+      id="prompt"
+      placeholder="Descreva sua ideia..."
+    ></textarea>
+
+    <button id="btnGerar">
+      Gerar
+    </button>
+  </div>
+
+  <div class="caixa-resultado">
+
+    <pre 
+      class="bloco-codigo"
+      id="codigoGerado"
+    ></pre>
+
+    <iframe 
+      class="bloco-site"
+      id="previewSite"
+    ></iframe>
+
+  </div>
+
+  <script src="script.js"></script>
+
 </body>
-</html> 
+</html>
