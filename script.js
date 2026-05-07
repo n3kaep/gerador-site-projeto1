@@ -6,15 +6,15 @@ const codigoGerado = document.getElementById("codigoGerado");
 const previewSite = document.getElementById("previewSite");
 
 botao.addEventListener("click", async () => {
-  console.log("botão clicado");
-
   const prompt = textarea.value.trim();
 
   if (!prompt) {
-    codigoGerado.textContent = "Digite algo.";
+    codigoGerado.textContent = "Digite uma ideia primeiro.";
     return;
   }
 
+  botao.textContent = "Gerando...";
+  botao.disabled = true;
   codigoGerado.textContent = "Gerando...";
   previewSite.srcdoc = "";
 
@@ -27,14 +27,17 @@ botao.addEventListener("click", async () => {
       body: JSON.stringify({ prompt })
     });
 
-    console.log("status:", resposta.status);
-
     const dados = await resposta.json();
 
     console.log(dados);
 
-    if (dados.erro) {
-      codigoGerado.textContent = dados.erro;
+    if (!resposta.ok || dados.erro) {
+      codigoGerado.textContent = dados.erro || "Erro ao gerar.";
+      return;
+    }
+
+    if (!dados.resultado || dados.resultado.trim() === "") {
+      codigoGerado.textContent = "A IA respondeu vazio.";
       return;
     }
 
@@ -43,7 +46,9 @@ botao.addEventListener("click", async () => {
 
   } catch (erro) {
     console.log(erro);
-
-    codigoGerado.textContent = "Erro ao conectar com API.";
+    codigoGerado.textContent = "Erro de conexão com /api/gerar.";
+  } finally {
+    botao.textContent = "Gerar";
+    botao.disabled = false;
   }
 });

@@ -16,7 +16,7 @@ export async function POST(request) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "openrouter/free",
+       model: "qwen/qwen3-coder:free",
         messages: [
           {
             role: "system",
