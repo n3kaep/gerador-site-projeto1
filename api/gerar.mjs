@@ -2,15 +2,8 @@ export async function POST(request) {
   try {
     const { prompt } = await request.json();
 
-    if (!process.env.GEMINI_API_KEY) {
-      return Response.json(
-        { erro: "GEMINI_API_KEY não encontrada no servidor." },
-        { status: 500 }
-      );
-    }
-
     const resposta = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
       {
         method: "POST",
         headers: {
@@ -22,7 +15,7 @@ export async function POST(request) {
             {
               parts: [
                 {
-                  text: `HTML simples: ${prompt}`
+                  text: prompt
                 }
               ]
             }
@@ -33,34 +26,22 @@ export async function POST(request) {
 
     const dados = await resposta.json();
 
+    console.log(dados);
+
     if (!resposta.ok) {
-      return Response.json(
-        {
-          erro: dados.error?.message || "Erro na API da Gemini.",
-          detalhes: dados
-        },
-        { status: resposta.status }
-      );
+      return Response.json({
+        erro: dados.error?.message || "Erro Gemini"
+      });
     }
 
-    const resultado = dados.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!resultado) {
-      return Response.json(
-        {
-          erro: "A Gemini respondeu, mas sem texto.",
-          detalhes: dados
-        },
-        { status: 500 }
-      );
-    }
-
-    return Response.json({ resultado });
+    return Response.json({
+      resultado:
+        dados.candidates?.[0]?.content?.parts?.[0]?.text
+    });
 
   } catch (erro) {
-    return Response.json(
-      { erro: erro.message },
-      { status: 500 }
-    );
+    return Response.json({
+      erro: erro.message
+    });
   }
 }
