@@ -22,7 +22,7 @@ export async function POST(request) {
             {
               parts: [
                 {
-                  text: `Crie somente HTML com CSS inline. Pedido: ${prompt}`
+                  text: `HTML simples: ${prompt}`
                 }
               ]
             }
