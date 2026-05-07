@@ -2,10 +2,10 @@ export async function POST(request) {
   try {
     const { prompt } = await request.json();
 
-    if (!prompt) {
+    if (!process.env.GEMINI_API_KEY) {
       return Response.json(
-        { erro: "Prompt vazio." },
-        { status: 400 }
+        { erro: "GEMINI_API_KEY não encontrada no servidor." },
+        { status: 500 }
       );
     }
 
@@ -22,18 +22,7 @@ export async function POST(request) {
             {
               parts: [
                 {
-                  text: `
-Crie apenas um código HTML simples baseado nesse pedido:
-"${prompt}"
-
-Regras:
-- Retorne somente HTML.
-- Não use markdown.
-- Não use explicação.
-- Não use JavaScript.
-- Use CSS inline ou tag style.
-- Faça algo visualmente bonito e simples.
-`
+                  text: `Crie somente HTML com CSS inline. Pedido: ${prompt}`
                 }
               ]
             }
@@ -44,14 +33,33 @@ Regras:
 
     const dados = await resposta.json();
 
-    const texto =
-      dados?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Não foi possível gerar resposta.";
+    if (!resposta.ok) {
+      return Response.json(
+        {
+          erro: dados.error?.message || "Erro na API da Gemini.",
+          detalhes: dados
+        },
+        { status: resposta.status }
+      );
+    }
 
-    return Response.json({ resultado: texto });
+    const resultado = dados.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!resultado) {
+      return Response.json(
+        {
+          erro: "A Gemini respondeu, mas sem texto.",
+          detalhes: dados
+        },
+        { status: 500 }
+      );
+    }
+
+    return Response.json({ resultado });
+
   } catch (erro) {
     return Response.json(
-      { erro: "Erro interno ao gerar conteúdo." },
+      { erro: erro.message },
       { status: 500 }
     );
   }
